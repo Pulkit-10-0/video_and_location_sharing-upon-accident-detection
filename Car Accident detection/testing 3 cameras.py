@@ -100,7 +100,7 @@ def record_audio():
     
     print("Audio recording stopped.")
     
-    # Save the recorded audio to a file
+
     wf = wave.open(audio_output_file, 'wb')
     wf.setnchannels(channels)
     wf.setsampwidth(audio.get_sample_size(audio_format))
@@ -108,10 +108,10 @@ def record_audio():
     wf.writeframes(b''.join(frames))
     wf.close()
 
-# Initialize video capture for all three cameras
-cap1 = cv2.VideoCapture(0)  # First camera
-cap2 = cv2.VideoCapture(1)  # Second camera
-cap3 = cv2.VideoCapture(2)  # Third camera
+
+cap1 = cv2.VideoCapture(0)  
+cap2 = cv2.VideoCapture(1)  
+cap3 = cv2.VideoCapture(2)  
 
 cap1.set(cv2.CAP_PROP_FRAME_WIDTH, video_width1)
 cap1.set(cv2.CAP_PROP_FRAME_HEIGHT, video_height1)
@@ -122,7 +122,7 @@ cap2.set(cv2.CAP_PROP_FRAME_HEIGHT, video_height2)
 cap3.set(cv2.CAP_PROP_FRAME_WIDTH, video_width3)
 cap3.set(cv2.CAP_PROP_FRAME_HEIGHT, video_height3)
 
-# Object Detection Setup
+# Object Detection 
 config_file = 'ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt'
 frozen_model = 'frozen_inference_graph.pb'
 
@@ -158,7 +158,7 @@ while True:
     if not ret1 or not ret2 or not ret3:
         break
     
-    # Object detection on the first camera
+
     ClassIndex1, confidence1, bbox1 = model.detect(frame1, confThreshold=0.55)
     if len(ClassIndex1) != 0:
         for ClassInd, conf, boxes in zip(ClassIndex1.flatten(), confidence1.flatten(), bbox1):
@@ -166,7 +166,7 @@ while True:
                 cv2.rectangle(frame1, boxes, color=(255, 0, 0), thickness=2)
                 cv2.putText(frame1, classLabels[ClassInd - 1], (boxes[0] + 10, boxes[1] + 40), font, font_scale, color=(0, 255, 0), thickness=3)
     
-    # Object detection on the second camera
+
     ClassIndex2, confidence2, bbox2 = model.detect(frame2, confThreshold=0.55)
     if len(ClassIndex2) != 0:
         for ClassInd, conf, boxes in zip(ClassIndex2.flatten(), confidence2.flatten(), bbox2):
@@ -174,7 +174,7 @@ while True:
                 cv2.rectangle(frame2, boxes, color=(255, 0, 0), thickness=2)
                 cv2.putText(frame2, classLabels[ClassInd - 1], (boxes[0] + 10, boxes[1] + 40), font, font_scale, color=(0, 255, 0), thickness=3)
     
-    # Object detection on the third camera
+
     ClassIndex3, confidence3, bbox3 = model.detect(frame3, confThreshold=0.55)
     if len(ClassIndex3) != 0:
         for ClassInd, conf, boxes in zip(ClassIndex3.flatten(), confidence3.flatten(), bbox3):
@@ -182,12 +182,12 @@ while True:
                 cv2.rectangle(frame3, boxes, color=(255, 0, 0), thickness=2)
                 cv2.putText(frame3, classLabels[ClassInd - 1], (boxes[0] + 10, boxes[1] + 40), font, font_scale, color=(0, 255, 0), thickness=3)
     
-    # Add the frames to their respective buffers
+
     frame_buffer_1.append(frame1)
     frame_buffer_2.append(frame2)
     frame_buffer_3.append(frame3)
     
-    # Display the frame with object detection
+
     cv2.imshow('Camera 1', frame1)
     cv2.imshow('Camera 2', frame2)
     cv2.imshow('Camera 3', frame3)
@@ -245,30 +245,30 @@ audio.terminate()
 video_clip_1 = VideoFileClip(video_output_file_1)
 audio_clip = AudioFileClip(audio_output_file)
 
-# Determine the duration for trimming (T-30 seconds or the full length if shorter)
+
 clip_duration = min(video_clip_1.duration, audio_clip.duration, 30)
 
-# Trim the video and audio to the last 30 seconds or less
+
 if video_clip_1.duration > clip_duration:
     video_clip_1 = video_clip_1.subclip(max(0, video_clip_1.duration - clip_duration), video_clip_1.duration)
 if audio_clip.duration > clip_duration:
     audio_clip = audio_clip.subclip(max(0, audio_clip.duration - clip_duration), audio_clip.duration)
 
-# Combine the trimmed video and audio
+
 final_clip_1 = video_clip_1.set_audio(audio_clip)
 final_output_file_1 = "1st_cam_accident_with_audio.mp4"  # Updated file name
 final_clip_1.write_videofile(final_output_file_1, codec="libx264", audio_codec="aac")
 
 print(f"Final video with audio saved as {final_output_file_1}")
 
-# The second camera video does not need audio   
+
 final_output_file_2 = "2nd_cam_accident_with_audio.mp4"
 video_clip_2 = VideoFileClip(video_output_file_2)
 video_clip_2.write_videofile(final_output_file_2, codec="libx264")
 
 print(f"Second camera video saved as {final_output_file_2}")
 
-# The third camera video does not need audio
+
 final_output_file_3 = "3rd_cam_accident_without_audio.mp4"
 video_clip_3 = VideoFileClip(video_output_file_3)
 video_clip_3.write_videofile(final_output_file_3, codec="libx264")
